@@ -49,6 +49,20 @@ CREATE TABLE IF NOT EXISTS counterexamples (
 )
 """
 
+SQL_CREATE_FORMALIZATION_ATTEMPTS = """
+CREATE TABLE IF NOT EXISTS formalization_attempts (
+    id TEXT PRIMARY KEY,
+    conjecture_id TEXT,
+    status TEXT,
+    source_path TEXT,
+    stdout TEXT,
+    stderr TEXT,
+    exit_code INTEGER,
+    metadata_json TEXT,
+    created_at TEXT
+)
+"""
+
 
 class ProvenanceStore:
     def __init__(self, db_path: Path | str = ".data/spectral_discovery.db") -> None:
@@ -69,6 +83,7 @@ class ProvenanceStore:
         cur.execute(SQL_CREATE_EXPERIMENTS)
         cur.execute(SQL_CREATE_EXPERIMENT_RESULTS)
         cur.execute(SQL_CREATE_COUNTEREXAMPLES)
+        cur.execute(SQL_CREATE_FORMALIZATION_ATTEMPTS)
         con.commit()
         con.close()
 
@@ -143,3 +158,16 @@ class ProvenanceStore:
         r = cur.fetchone()
         con.close()
         return int(r[0]) if r else 0
+
+    # Formalization helpers
+
+    def add_formalization_attempt(self, attempt_id: str, conjecture_id: str, status: str, source_path: Optional[str], stdout: str, stderr: str, exit_code: Optional[int], metadata_json: str, created_at: Optional[datetime] = None) -> None:
+        con = self._connect()
+        cur = con.cursor()
+        created_at_s = (created_at or datetime.utcnow()).isoformat()
+        cur.execute(
+            "INSERT INTO formalization_attempts (id, conjecture_id, status, source_path, stdout, stderr, exit_code, metadata_json, created_at) VALUES (?,?,?,?,?,?,?,?,?)",
+            (attempt_id, conjecture_id, status, source_path, stdout, stderr, exit_code, metadata_json, created_at_s),
+        )
+        con.commit()
+        con.close()

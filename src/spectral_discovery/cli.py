@@ -9,6 +9,7 @@ from spectral_discovery.provenance.store import ProvenanceStore
 from spectral_discovery.agents.mock_llm import MockLLM
 from spectral_discovery.experiments.runner import ExperimentRunner
 from spectral_discovery.conjectures.models import ConjectureDB
+from spectral_discovery.formal.lean_verifier import LeanVerifier
 
 # Keep existing commands (init, conjecture_generate, etc.)
 @app.command()
@@ -51,3 +52,54 @@ def experiments_list():
         raise typer.Exit()
     for e in exps:
         typer.echo(f"- id: {e['id']}  conjecture: {e['conjecture_id']}  trials: {e['n_trials']}  created_at: {e['created_at']}")
+
+
+@app.command()
+def formalize(conjecture_id: str):
+    """Attempt to formalize a conjecture in Lean (writes source and tries to run lake/lean if available)."""
+    db = ConjectureDB(".data/spectral_discovery.db")
+    c = db.get_conjecture(conjecture_id)
+    if c is None:
+        typer.echo("Conjecture not found.")
+        raise typer.Exit(code=1)
+
+    # Create a very small Lean translation placeholder
+    lean_source = f\"\"\"/-
+Lean translation placeholder for conjecture.
+Conjecture id: {c.id}
+Title: {c.title}
+Original statement:
+{c.statement}
+-/
+
+namespace SpectralDiscovery.Conjectures.{c.id.replace('-', '_')}
+
+-- TODO: Formalize the statement here.
+
+end SpectralDiscovery.Conjectures.{c.id.replace('-', '_')}
+\"\"\"
+
+    verifier = LeanVerifier(lean_project_dir=Path("lean"))
+    result = verifier.check(conjecture_id, lean_source)
+
+    # persist attempt in provenance DB
+    store = ProvenanceStore(Path(".data/spectral_discovery.db"))
+    store.init_schema()
+    store.add_formalization_attempt(
+        attempt_id=result.attempt_id,
+        conjecture_id=conjecture_id,
+        status=result.status,
+        source_path=result.source_path,
+        stdout=result.stdout,
+        stderr=result.stderr,
+        exit_code=result.exit_code,
+        metadata_json=json.dumps(result.metadata),
+    )
+
+    typer.echo(f\"Formalization attempt {result.attempt_id}: status={result.status}\")
+    if result.source_path:
+        typer.echo(f\"Wrote Lean source to: {result.source_path}\")
+    if result.stdout:
+        typer.echo(\"Lean stdout:\\n\" + result.stdout)
+    if result.stderr:
+        typer.echo(\"Lean stderr:\\n\" + result.stderr)
