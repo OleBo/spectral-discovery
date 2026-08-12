@@ -1,0 +1,11 @@
+__pycache__/
+.venv/
+.env
+.data/
+reports/
+**/*.pyc
+.DS_Store
+.idea/
+.vscode/
+leanpkg.toml
+/.lake/

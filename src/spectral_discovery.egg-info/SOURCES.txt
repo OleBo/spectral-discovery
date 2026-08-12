@@ -1,0 +1,17 @@
+LICENSE
+README.md
+pyproject.toml
+src/spectral_discovery/__init__.py
+src/spectral_discovery/cli.py
+src/spectral_discovery.egg-info/PKG-INFO
+src/spectral_discovery.egg-info/SOURCES.txt
+src/spectral_discovery.egg-info/dependency_links.txt
+src/spectral_discovery.egg-info/entry_points.txt
+src/spectral_discovery.egg-info/requires.txt
+src/spectral_discovery.egg-info/top_level.txt
+src/spectral_discovery/agents/mock_llm.py
+src/spectral_discovery/conjectures/models.py
+src/spectral_discovery/experiments/runner.py
+src/spectral_discovery/matrices/generators.py
+src/spectral_discovery/provenance/store.py
+src/spectral_discovery/spectral/resolvent.py

@@ -1,3 +1,23 @@
+Metadata-Version: 2.4
+Name: spectral-discovery
+Version: 0.1.0
+Summary: AI-driven spectral conjecture discovery — Phase 1
+Author: OleBo
+License: MIT
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.26
+Requires-Dist: scipy>=1.11
+Requires-Dist: pandas>=2.2
+Requires-Dist: matplotlib>=3.8
+Requires-Dist: typer[all]>=0.9
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: hypothesis; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Dynamic: license-file
+
 # Spectral Discovery
 
 Automated research laboratory for AI-driven spectral conjecture discovery (Phase 1 minimal implementation).
@@ -25,7 +45,7 @@ Requirements: Python 3.12, git
 
 4. Run the demo research pipeline (deterministic mock LLM; ~1000 small experiments)
 
-   spectral-discovery research_demo
+   spectral-discovery research demo
 
 5. Inspect outputs
 

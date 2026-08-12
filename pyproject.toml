@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spectral-discovery"
+version = "0.1.0"
+description = "AI-driven spectral conjecture discovery — Phase 1"
+authors = [ { name = "OleBo" } ]
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "pandas>=2.2",
+    "matplotlib>=3.8",
+    "typer[all]>=0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "hypothesis",
+    "ruff",
+]
+
+[project.scripts]
+spectral-discovery = "spectral_discovery.cli:app"
