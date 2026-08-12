@@ -38,3 +38,17 @@ Requirements: Python 3.12, git
 6. Run unit tests:
 
    pytest -q
+   
+7. List experiments
+
+   spectral-discovery experiments-list
+   
+8. Inspect provenance events and counterexamples
+
+   sqlite3 .data/spectral_discovery.db "SELECT id, event_type, substr(event_json,1,200) FROM provenance_events ORDER BY id DESC LIMIT 20;" 
+   sqlite3 .data/spectral_discovery.db "SELECT id, experiment_id, summary_json FROM counterexamples;"
+   
+9. Inspect shrunk artifact
+
+   python -c "import numpy as np; d=np.load('artifacts/counterexamples/<shrink-file>.npz'); print(d['matrix'])"
+   
