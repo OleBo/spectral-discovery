@@ -15,3 +15,4 @@ src/spectral_discovery/experiments/runner.py
 src/spectral_discovery/matrices/generators.py
 src/spectral_discovery/provenance/store.py
 src/spectral_discovery/spectral/resolvent.py
+tests/test_resolvent.py

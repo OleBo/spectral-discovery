@@ -37,7 +37,7 @@ Requirements: Python 3.12, git
 
    python -m venv .venv
    source .venv/bin/activate
-   pip install -e .[dev]
+   pip install -e ".[dev]"
 
 3. Initialize the research database
 
@@ -45,7 +45,7 @@ Requirements: Python 3.12, git
 
 4. Run the demo research pipeline (deterministic mock LLM; ~1000 small experiments)
 
-   spectral-discovery research demo
+   spectral-discovery research_demo
 
 5. Inspect outputs
 

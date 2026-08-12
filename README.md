@@ -17,7 +17,7 @@ Requirements: Python 3.12, git
 
    python -m venv .venv
    source .venv/bin/activate
-   pip install -e .[dev]
+   pip install -e ".[dev]"
 
 3. Initialize the research database
 
@@ -32,3 +32,9 @@ Requirements: Python 3.12, git
 - SQLite DB at .data/spectral_discovery.db
 - Research report in reports/demo_report.md
 - Provenance events in the DB
+
+   sqlite3 .data/spectral_discovery.db "SELECT * FROM provenance_events LIMIT 10;"
+
+6. Run unit tests:
+
+   pytest -q
