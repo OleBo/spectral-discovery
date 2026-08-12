@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
-from datetime import datetime
+import datetime
 import uuid
 
 
@@ -106,8 +106,8 @@ class ConjectureDB:
             novelty_score=None,
             significance_score=None,
             formalization_status="UNFORMALIZED",
-            created_at=datetime.fromisoformat(r[5]),
-            updated_at=datetime.fromisoformat(r[6]),
+            created_at=datetime.datetime.fromisoformat(r[5]),
+            updated_at=datetime.datetime.fromisoformat(r[6]),
             parent_conjectures=[],
         )
 
@@ -118,7 +118,7 @@ def make_conjecture_example(title: Optional[str] = None) -> Conjecture:
     experiment runner that knows how to interpret it.
     """
     cid = str(uuid.uuid4())
-    now = datetime.utcnow()
+    now = datetime.datetime.now(datetime.UTC)
     title = title or "Resolvent norm vs spectral distance (demo conjecture)"
     statement = (
         "For matrices A with ||A||_2 <= 2, and for z with dist(z, spec(A)) >= delta,"
