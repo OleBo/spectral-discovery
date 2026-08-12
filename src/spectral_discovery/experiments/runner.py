@@ -1,4 +1,4 @@
-"""Experiment runner and simple counterexample search with experiment records."""
+"""Experiment runner with counterexample shrinking integration."""
 from __future__ import annotations
 import numpy as np
 from typing import Optional
@@ -13,7 +13,9 @@ from spectral_discovery.provenance.store import ProvenanceStore
 from spectral_discovery.spectral.resolvent import resolvent_norm
 from spectral_discovery.experiments.models import ExperimentConfig, ExperimentResult, GeneratorConfig as GenCfg
 
-import uuid
+from spectral_discovery.counterexamples.shrinking import Shrinker
+
+import uuid, os
 
 
 class ExperimentRunner:
@@ -22,6 +24,7 @@ class ExperimentRunner:
         self.prov = ProvenanceStore(Path(db_path))
         self.prov.init_schema()
         self.mg = MatrixGenerator()
+        self.shrinker = Shrinker()
 
     def run_for_conjecture(self, conjecture_id: str, n: int = 1000, generator: Optional[GenCfg] = None, seed_start: int = 1) -> str:
         """Run n experiments attempting to falsify the conjecture.
@@ -100,6 +103,30 @@ class ExperimentRunner:
                 # structured counterexample record
                 from spectral_discovery.experiments.models import CounterexampleRecord
                 cerec = CounterexampleRecord.new(exp_cfg.id, res.id, summary=found_counterexample)
+
+                # Attempt shrinking, using a check function capturing z+threshold logic.
+                def check_fn(M: np.ndarray) -> bool:
+                    # mimic the original test: pick z as spectral radius + delta (we reuse delta and z strategy)
+                    eigs_M = np.linalg.eigvals(M)
+                    rho_M = max(abs(eigs_M)) if eigs_M.size > 0 else 0.0
+                    z_M = complex(rho_M + delta)
+                    rn_M = resolvent_norm(M, z_M)
+                    return rn_M > threshold
+
+                # run shrinker
+                shrink_id = cerec.id + "_shrink"
+                shrink_res = self.shrinker.shrink(shrink_id, A, check_fn, min_dim=2, min_rank=1)
+                if shrink_res.success:
+                    # update summary and persist counterexample with artifact path
+                    found_counterexample["shrunk_artifact"] = shrink_res.artifact_path
+                    found_counterexample["shrunk_metadata"] = shrink_res.metadata
+                    cerec.summary = found_counterexample  # mutate before saving
+                else:
+                    found_counterexample["shrunk_artifact"] = None
+                    found_counterexample["shrunk_metadata"] = shrink_res.metadata
+                    cerec.summary = found_counterexample
+
+                # store counterexample record (summary includes artifact path if present)
                 self.prov.add_counterexample(cerec.id, cerec.experiment_id, cerec.result_id, cerec.to_json(), created_at=cerec.created_at)
                 break
 
